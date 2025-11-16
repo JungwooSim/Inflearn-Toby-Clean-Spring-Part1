@@ -3,3 +3,5 @@ spring:
     name: splearn
   jpa:
     show-sql: true
+    hibernate:
+      ddl-auto: update
