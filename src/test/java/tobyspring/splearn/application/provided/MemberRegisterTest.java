@@ -1,14 +1,12 @@
 package tobyspring.splearn.application.provided;
 
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 import tobyspring.splearn.SplearnTestConfiguration;
-import tobyspring.splearn.domain.DuplicationEmailException;
-import tobyspring.splearn.domain.Member;
-import tobyspring.splearn.domain.MemberFixture;
-import tobyspring.splearn.domain.MemberStatus;
+import tobyspring.splearn.domain.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -36,4 +34,16 @@ public record MemberRegisterTest(
         .isInstanceOf(DuplicationEmailException.class);
   }
 
+  @Test
+  void memberRegisterRequestFail() {
+    extracted(new MemberRegisterRequest("toby@splearn.app", "Toby", "secret"));
+    extracted(new MemberRegisterRequest("toby@splearn.app", "Charlie", "secret"));
+    extracted(new MemberRegisterRequest("toby@splearn.app", "Charlie__________________________", "secret"));
+    extracted(new MemberRegisterRequest("tobysplearn.app", "Charlie", "secret"));
+  }
+
+  private void extracted(MemberRegisterRequest invalid) {
+    assertThatThrownBy(() -> memberRegister.register(invalid))
+        .isInstanceOf(ConstraintViolationException.class);
+  }
 }
